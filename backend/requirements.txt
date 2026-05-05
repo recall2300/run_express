@@ -1,0 +1,8 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic>=2.10.6
+requests==2.31.0
+git+https://github.com/dhfhfk/korail2.git@bypassDynapath
+SRTrain==2.6.7
+solapi
+python-dotenv

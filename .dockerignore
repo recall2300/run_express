@@ -1,0 +1,31 @@
+# Git
+.git
+.gitignore
+
+# Environment
+.env
+.env.local
+
+# Data & Profiles (Sensitive)
+profiles.json
+config.json
+backend/profiles.json
+backend/config.json
+backend/db.sqlite3
+
+# Python
+**/__pycache__/
+**/*.pyc
+backend/venv/
+backend/.pytest_cache
+
+# Node
+frontend/node_modules/
+frontend/dist/
+.npm
+
+# Docker
+docker-compose.yml
+Dockerfile
+run.bat
+run_local.bat

@@ -1,0 +1,15 @@
+services:
+  runktx:
+    build: .
+    image: recall2300/runktx:latest
+    container_name: runktx_macro
+    ports:
+      - "8888:8000"
+    volumes:
+      - ./config.json:/app/config.json
+      - ./profiles.json:/app/profiles.json
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Seoul
