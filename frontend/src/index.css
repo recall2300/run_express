@@ -24,18 +24,23 @@
   font-family: var(--font-family);
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background: var(--bg-color);
   color: var(--text-primary);
   min-height: 100vh;
   padding: 2rem 1rem;
+  overflow-x: hidden;
 }
 
 #root {
   width: 100%;
   max-width: 500px;
-  margin: 0 auto; /* Center the container instead of body flex */
+  margin: 0 auto;
 }
 
 .app-layout {
@@ -54,6 +59,15 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.25rem;
+  gap: 0.5rem;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .logo-text {
@@ -288,6 +302,8 @@ label {
 }
 
 select, input {
+  width: 100%;
+  min-width: 0;
   background: #f8fafc;
   border: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -296,6 +312,15 @@ select, input {
   font-size: 0.95rem;
   outline: none;
   transition: all 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem;
 }
 
 select:focus, input:focus {
@@ -480,6 +505,39 @@ select:focus, input:focus {
   margin-top: 0.15rem;
 }
 
+/* Profile buttons */
+.btn-save {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-save:hover {
+  background: var(--primary-hover);
+}
+
+.btn-cancel {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f1f5f9;
+}
+
 .train-details {
   display: flex;
   flex-direction: column;
@@ -642,16 +700,63 @@ select:focus, input:focus {
 
 /* Responsive */
 @media (max-width: 480px) {
-  .app-layout {
-    padding: 1rem 0.5rem;
+  body {
+    padding: 1.25rem 0.75rem;
   }
+
   .card {
     padding: 1.25rem 1rem;
+    border-radius: 18px;
   }
+
+  .logo-text {
+    font-size: 1.5rem;
+  }
+
   .input-grid {
     grid-template-columns: 1fr;
+    gap: 0.9rem;
   }
+
   .search-btn {
     grid-column: span 1;
+  }
+
+  /* Train row: wrap action buttons onto new line */
+  .train-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .time-box {
+    flex: 0 0 auto;
+  }
+
+  .detail-box {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .action-row {
+    flex: 0 0 100%;
+    gap: 0.5rem;
+  }
+
+  .btn-action {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .time {
+    font-size: 1.05rem;
+  }
+
+  .modal-content {
+    padding: 1.25rem 1rem;
+    border-radius: 20px;
+  }
+
+  .running-indicator {
+    padding: 0.75rem 1rem;
   }
 }
