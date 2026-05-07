@@ -17,6 +17,43 @@
   --font:       'JetBrains Mono', 'Nanum Gothic Coding', 'D2Coding', 'Consolas', monospace;
 }
 
+/* ─── LIGHT THEME ────────────────────────────────────── */
+html.light-theme {
+  --bg:         #f0f0ec;
+  --bg-surface: #e8e8e4;
+  --bg-raised:  #dcdcd8;
+  --accent:     #3d8a00;
+  --accent-dim: rgba(61, 138, 0, 0.1);
+  --accent-glow:rgba(61, 138, 0, 0.28);
+  --text:       #111111;
+  --text-dim:   rgba(0, 0, 0, 0.55);
+  --text-muted: rgba(0, 0, 0, 0.35);
+  --border:     rgba(61, 138, 0, 0.32);
+  --border-dim: rgba(0, 0, 0, 0.13);
+  --warn:       #b86e00;
+  --danger:     #cc2222;
+}
+
+html.light-theme select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%233d8a00' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+html.light-theme select option {
+  background: #f0f0ec;
+  color: #111111;
+}
+
+html.light-theme input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.45;
+}
+
+html.light-theme .logs-container {
+  border-left-color: var(--border);
+}
+
+/* ──────────────────────────────────────────────────────── */
+
 * {
   box-sizing: border-box;
   margin: 0;

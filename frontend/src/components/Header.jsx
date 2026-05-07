@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Header = ({ isRunning, onOpenSettings }) => {
+const Header = ({ isRunning, onOpenSettings, isDark, onToggleTheme }) => {
   return (
     <header className="header">
       <div className="header-content">
@@ -15,6 +15,13 @@ const Header = ({ isRunning, onOpenSettings }) => {
             <span className="pulse" />
             {isRunning ? 'RUNNING' : 'IDLE'}
           </div>
+          <button
+            className="settings-toggle"
+            onClick={onToggleTheme}
+            title={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
+          >
+            {isDark ? '☀' : '☾'}
+          </button>
           <button className="settings-toggle" onClick={onOpenSettings} title="설정">
             ⚙
           </button>

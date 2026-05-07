@@ -58,6 +58,12 @@ function App() {
   const [logsAll, setLogsAll] = useState({ KTX: [], SRT: [] });
   const [isSearching, setIsSearching] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isDark, setIsDark] = useState(() => localStorage.getItem('runktx_theme') !== 'light');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('light-theme', !isDark);
+    localStorage.setItem('runktx_theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
 
   useEffect(() => {
     ['KTX', 'SRT'].forEach(async (type) => {
@@ -215,9 +221,11 @@ function App() {
 
   return (
     <div className="app-layout">
-      <Header 
-        isRunning={isRunningAll.KTX.is_running || isRunningAll.SRT.is_running} 
-        onOpenSettings={() => setShowSettings(true)} 
+      <Header
+        isRunning={isRunningAll.KTX.is_running || isRunningAll.SRT.is_running}
+        onOpenSettings={() => setShowSettings(true)}
+        isDark={isDark}
+        onToggleTheme={() => setIsDark(prev => !prev)}
       />
       
       <main className="main-content">
