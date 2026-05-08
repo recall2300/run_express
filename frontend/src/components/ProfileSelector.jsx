@@ -48,8 +48,8 @@ const ProfileSelector = ({
               autoFocus
             />
             <input
-              type="text"
-              placeholder="전화번호"
+              type="tel"
+              placeholder="01011112222"
               value={newPhone}
               onChange={e => setNewPhone(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleCreate()}
