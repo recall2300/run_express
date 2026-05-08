@@ -95,7 +95,7 @@ class SrtManager(BaseTrainManager):
         self.current_config = config
         self.logs = []
 
-        if not self.check_notification_ready():
+        if not self.check_notification_ready(config):
             self.is_running = False
             self.target_train_no = None
             self.target_train_name = None

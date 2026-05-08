@@ -23,22 +23,32 @@ const SettingsModal = ({
           <h3>{activeTab} 계정 정보</h3>
           <div className="input-group">
             <label>회원번호 / ID</label>
-            <input 
-              type="text" 
-              name={activeTab === 'KTX' ? 'korail_id' : 'srt_id'} 
-              value={activeTab === 'KTX' ? config.korail_id : config.srt_id} 
+            <input
+              type="text"
+              name={activeTab === 'KTX' ? 'korail_id' : 'srt_id'}
+              value={activeTab === 'KTX' ? config.korail_id : config.srt_id}
               onChange={onChange}
               placeholder="멤버십 번호 등"
             />
           </div>
           <div className="input-group">
             <label>비밀번호</label>
-            <input 
-              type="password" 
-              name={activeTab === 'KTX' ? 'korail_pw' : 'srt_pw'} 
-              value={activeTab === 'KTX' ? config.korail_pw : config.srt_pw} 
+            <input
+              type="password"
+              name={activeTab === 'KTX' ? 'korail_pw' : 'srt_pw'}
+              value={activeTab === 'KTX' ? config.korail_pw : config.srt_pw}
               onChange={onChange}
               placeholder="****"
+            />
+          </div>
+          <div className="input-group">
+            <label>SMS 수신 전화번호</label>
+            <input
+              type="tel"
+              name="phone_number"
+              value={config.phone_number || ''}
+              onChange={onChange}
+              placeholder="01012345678"
             />
           </div>
         </div>

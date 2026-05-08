@@ -30,7 +30,7 @@ class BaseTrainManager:
         self.tg_chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
         self.notification_mode = os.getenv("NOTIFICATION_MODE", "telegram").lower() # 'sms' or 'telegram'
 
-    def check_notification_ready(self) -> bool:
+    def check_notification_ready(self, config=None) -> bool:
         """알림 설정이 완료되어 있는지 확인. 미설정 시 로그 후 False 반환."""
         if self.notification_mode == 'telegram':
             if not self.tg_token or not self.tg_chat_id:
@@ -38,7 +38,10 @@ class BaseTrainManager:
                 return False
         elif self.notification_mode == 'sms':
             if not self.message_service or not self.from_number:
-                self.add_log("알림 설정 오류: Solapi API 설정이 완료되지 않았습니다. 매크로를 시작할 수 없습니다.")
+                self.add_log("알림 설정 오류: Solapi API 설정이 완료되지 않았습니다. (SOLAPI_API_KEY, SOLAPI_API_SECRET, SOLAPI_SENDER_NUMBER 확인)")
+                return False
+            if config is not None and not getattr(config, 'phone_number', ''):
+                self.add_log("알림 설정 오류: 수신 전화번호가 비어 있습니다. 설정에서 전화번호를 입력해주세요.")
                 return False
         return True
 
@@ -99,9 +102,11 @@ class BaseTrainManager:
             self.send_telegram_msg(message_text)
 
     def send_sms_msg(self, to_number: str, message_text: str):
-        if not to_number or not self.message_service:
-            if not self.message_service:
-                self.add_log("Solapi API 설정이 없습니다. SMS를 전송할 수 없습니다.")
+        if not self.message_service:
+            self.add_log("Solapi API 설정이 없습니다. SMS를 전송할 수 없습니다.")
+            return
+        if not to_number:
+            self.add_log("SMS 전송 실패: 수신 전화번호가 설정되지 않았습니다. 설정에서 전화번호를 입력해주세요.")
             return
             
         try:
