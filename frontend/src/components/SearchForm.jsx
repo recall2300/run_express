@@ -1,12 +1,11 @@
 import React from 'react';
 
-const SearchForm = ({ 
-  config, 
-  activeTab, 
-  stations, 
-  validArrivals, 
-  onChange, 
-  onSearch, 
+const SearchForm = ({
+  config,
+  stations,
+  validArrivals,
+  onChange,
+  onSearch,
   isSearching,
   hasResults,
   activeProfile,

@@ -1,59 +1,60 @@
-const API_BASE = ''; // Same origin
+const API_BASE = '';
+
+async function fetchJson(url, options) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
 
 export const api = {
   async getStatus() {
-    const res = await fetch(`${API_BASE}/api/status`);
-    return res.json();
+    return fetchJson(`${API_BASE}/api/status`);
   },
 
   async getConfig() {
-    const res = await fetch(`${API_BASE}/api/config`);
-    return res.json();
+    return fetchJson(`${API_BASE}/api/config`);
   },
 
   async getProfiles(trainType) {
-    const res = await fetch(`${API_BASE}/api/profiles/${trainType}`);
-    return res.json();
+    return fetchJson(`${API_BASE}/api/profiles/${trainType}`);
   },
 
   async saveProfile(trainType, profileName, config) {
-    const res = await fetch(`${API_BASE}/api/profiles/${trainType}/${profileName}`, {
+    return fetchJson(`${API_BASE}/api/profiles/${trainType}/${profileName}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
     });
-    return res.json();
   },
 
   async deleteProfile(trainType, profileName) {
-    const res = await fetch(`${API_BASE}/api/profiles/${trainType}/${profileName}`, {
+    return fetchJson(`${API_BASE}/api/profiles/${trainType}/${profileName}`, {
       method: 'DELETE'
     });
-    return res.json();
   },
 
   async searchTrains(trainType, config) {
-    const res = await fetch(`${API_BASE}/api/search/${trainType}`, {
+    return fetchJson(`${API_BASE}/api/search/${trainType}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...config, train_no: '' })
     });
-    return res.json();
   },
 
   async startMacro(trainType, config) {
-    const res = await fetch(`${API_BASE}/api/start/${trainType}`, {
+    return fetchJson(`${API_BASE}/api/start/${trainType}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
     });
-    return res.json();
   },
 
   async stopMacro(trainType) {
-    const res = await fetch(`${API_BASE}/api/stop/${trainType}`, {
+    return fetchJson(`${API_BASE}/api/stop/${trainType}`, {
       method: 'POST'
     });
-    return res.json();
   }
 };

@@ -139,6 +139,9 @@ class BaseTrainManager:
         except Exception as e:
             self.add_log(f"텔레그램 전송 중 오류: {e}")
 
+    def _format_time(self, t):
+        return f"{t[:2]}:{t[2:4]}" if len(t) >= 4 else t
+
     def _get_search_time(self, config, is_macro=False):
         search_time = getattr(config, 'time', "")
         if not search_time:

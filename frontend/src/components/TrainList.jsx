@@ -20,8 +20,8 @@ const TrainList = ({ trains, onStart, isRunning }) => {
     <div className="train-list card">
       <h2 className="card-title">조회 결과</h2>
       <div className="train-items">
-        {trains.map((t, i) => (
-          <div key={i} className="train-item">
+        {trains.map((t) => (
+          <div key={t.train_no} className="train-item">
             <div className="train-row">
               <div className="time-box">
                 <span className="time dep">{formatTime(t.dep_time)}</span>

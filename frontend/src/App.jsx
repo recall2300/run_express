@@ -136,15 +136,13 @@ function App() {
         setProfiles(prev => ({ ...prev, [activeTab]: { ...prev[activeTab], [name]: initialConf } }));
         handleLogin(name);
       }
-    } catch (err) { alert("프로필 생성 실패"); }
+    } catch { alert("프로필 생성 실패"); }
   };
 
   const handleDeleteProfile = async (pName) => {
-    console.log("handleDeleteProfile called for:", pName, "activeTab:", activeTab);
     if (!window.confirm(`'${pName}' 프로필을 삭제하시겠습니까?`)) return;
     try {
       const res = await api.deleteProfile(activeTab, pName);
-      console.log("Delete response:", res);
       if (res.status === 'success') {
         setProfiles(prev => {
           const newP = { ...prev[activeTab] };
@@ -175,7 +173,7 @@ function App() {
         setTrainLists(prev => ({ ...prev, [activeTab]: data.trains || [] }));
         if (data.trains?.length === 0) alert("조건에 맞는 열차가 없습니다.");
       } else alert(data.message || "조회 실패");
-    } catch (err) { alert("서버 연결 실패"); }
+    } catch { alert("서버 연결 실패"); }
     setIsSearching(false);
   };
 
@@ -197,7 +195,7 @@ function App() {
       if (res.status === 'success') {
         setIsRunningAll(prev => ({ ...prev, [activeTab]: { is_running: true, target_train_no: trainNo, target_train_name: trainName } }));
       } else alert(res.message);
-    } catch (err) { alert("서버 연결 실패"); }
+    } catch { alert("서버 연결 실패"); }
   };
 
   const handleStopMacro = async () => {
@@ -206,7 +204,7 @@ function App() {
       if (res.status === 'success') {
         setIsRunningAll(prev => ({ ...prev, [activeTab]: { is_running: false, target_train_no: null } }));
       }
-    } catch (err) { alert("서버 연결 실패"); }
+    } catch { alert("서버 연결 실패"); }
   };
 
   const handleSaveSettings = async () => {
@@ -217,7 +215,7 @@ function App() {
         setProfiles(prev => ({ ...prev, [activeTab]: { ...prev[activeTab], [activeProfile]: config } }));
         setShowSettings(false);
       }
-    } catch (err) { alert("저장 실패"); }
+    } catch { alert("저장 실패"); }
   };
 
   return (

@@ -56,7 +56,6 @@ class SrtManager(BaseTrainManager):
             result = []
             for t in trains:
                 str_t = str(t)
-                print(f"[DEBUG RAW DATA SRT] {str_t}")
                 
                 # SRT 가격 정보 추출 보완 (속성값 우선 확인)
                 general_price = getattr(t, 'general_seat_price', getattr(t, 'price', ""))
@@ -66,7 +65,6 @@ class SrtManager(BaseTrainManager):
                 if isinstance(special_price, (int, float)) and special_price > 0: special_price = f"{int(special_price):,}원"
 
                 if not general_price or not special_price:
-                    str_t = str(t)
                     # SRT 객체 문자열에서 가격 패턴 찾기 (예: "59,800원")
                     # 숫자로 시작하고 '원'으로 끝나는 패턴만 추출
                     prices = [p for p in re.findall(r'([\d,]+원)', str_t) if any(c.isdigit() for c in p)]
@@ -131,83 +129,82 @@ class SrtManager(BaseTrainManager):
         search_time = self._get_search_time(config, is_macro=True)
 
         attempt = 1
-        while self.is_running:
-            try:
-                self.add_log(f"{attempt}회차: 기차표 조회 중...")
-                trains = srt.search_train(config.dep, config.arr, config.date, search_time, available_only=False)
-                
-                reserved = False
-                
-                for train in trains:
-                    if train.train_number != config.train_no:
-                        continue
+        try:
+            while self.is_running:
+                try:
+                    self.add_log(f"{attempt}회차: 기차표 조회 중...")
+                    trains = srt.search_train(config.dep, config.arr, config.date, search_time, available_only=False)
 
-                    has_general = train.general_seat_available()
-                    has_special = train.special_seat_available()
-                    
-                    if has_general or has_special:
-                        try:
-                            # 가격 정보 추출 (SRT 객체 문자열에서 추출 시도)
-                            price = ""
-                            price_match = re.search(r'(\d{1,3}(,\d{3})*원)', str(train))
-                            if price_match:
-                                price = price_match.group(1)
+                    reserved = False
 
-                            # 빈자리 발견 로그 개선
-                            seat_desc = "특실" if config.seat_type == 'special' else "일반실"
-                            def format_time(t): return f"{t[:2]}:{t[2:4]}" if len(t) >= 4 else t
-                            train_name = getattr(train, 'train_name', '[SRT]')
-                            def format_time(t): return f"{t[:2]}:{t[2:4]}" if len(t) >= 4 else t
-                            self.add_log(f"빈자리 발견! 예매 시도 중: [{train_name}] {config.date[4:6]}월 {config.date[6:8]}일, {config.dep}~{config.arr}({format_time(train.dep_time)}~{format_time(train.arr_time)}) {seat_desc}")
-                            
-                            # SRT reserve 인자 수정 (SeatType 상수 사용)
-                            if config.seat_type == 'special':
-                                reservation = srt.reserve(train, special_seat=SeatType.SPECIAL_ONLY)
-                            else:
-                                reservation = srt.reserve(train, special_seat=SeatType.GENERAL_ONLY)
-                            
-                            self.add_log(f"예매가 성공적으로 완료되었습니다: {reservation}")
-                            
-                            # 예매 성공 문자열(str)에서 직접 금액 파싱 (가장 정확함)
-                            str_res = str(reservation)
-                            p_match = re.search(r'([\d,]+원)', str_res)
-                            if p_match:
-                                actual_price = p_match.group(1)
-                            else:
-                                # 실패 시 속성값 확인
-                                actual_price = getattr(reservation, 'total_fee', getattr(reservation, 'price', config.price))
-                                if isinstance(actual_price, (int, float)):
-                                    actual_price = f"{int(actual_price):,}원"
-                                elif isinstance(actual_price, str) and actual_price.isdigit():
-                                    actual_price = f"{int(actual_price):,}원"
-                            
-                            msg = self.format_notification(config, "🎉 예매 성공!", seat_type=config.seat_type, price=actual_price)
-                            self.send_notification(config, msg)
-                            reserved = True
-                            break
-                        except SRTError as e:
-                            self.add_log(f"예매 중 오류 발생: {e}")
-                            # 동일한 예약 내역 오류 발생 시 매크로 중단
-                            if "동일한 예약 내역" in str(e) or "already reserved" in str(e).lower():
-                                self.add_log(f"중단 사유: {e}")
-                                self.is_running = False
+                    for train in trains:
+                        if train.train_number != config.train_no:
+                            continue
+
+                        has_general = train.general_seat_available()
+                        has_special = train.special_seat_available()
+
+                        if has_general or has_special:
+                            try:
+                                # 가격 정보 추출 (SRT 객체 문자열에서 추출 시도)
+                                price = ""
+                                price_match = re.search(r'(\d{1,3}(,\d{3})*원)', str(train))
+                                if price_match:
+                                    price = price_match.group(1)
+
+                                # 빈자리 발견 로그 개선
+                                seat_desc = "특실" if config.seat_type == 'special' else "일반실"
+                                train_name = getattr(train, 'train_name', '[SRT]')
+                                self.add_log(f"빈자리 발견! 예매 시도 중: [{train_name}] {config.date[4:6]}월 {config.date[6:8]}일, {config.dep}~{config.arr}({self._format_time(train.dep_time)}~{self._format_time(train.arr_time)}) {seat_desc}")
+
+                                # SRT reserve 인자 수정 (SeatType 상수 사용)
+                                if config.seat_type == 'special':
+                                    reservation = srt.reserve(train, special_seat=SeatType.SPECIAL_ONLY)
+                                else:
+                                    reservation = srt.reserve(train, special_seat=SeatType.GENERAL_ONLY)
+
+                                self.add_log(f"예매가 성공적으로 완료되었습니다: {reservation}")
+
+                                # 예매 성공 문자열(str)에서 직접 금액 파싱 (가장 정확함)
+                                str_res = str(reservation)
+                                p_match = re.search(r'([\d,]+원)', str_res)
+                                if p_match:
+                                    actual_price = p_match.group(1)
+                                else:
+                                    # 실패 시 속성값 확인
+                                    actual_price = getattr(reservation, 'total_fee', getattr(reservation, 'price', config.price))
+                                    if isinstance(actual_price, (int, float)):
+                                        actual_price = f"{int(actual_price):,}원"
+                                    elif isinstance(actual_price, str) and actual_price.isdigit():
+                                        actual_price = f"{int(actual_price):,}원"
+
+                                msg = self.format_notification(config, "🎉 예매 성공!", seat_type=config.seat_type, price=actual_price)
+                                self.send_notification(config, msg)
+                                reserved = True
                                 break
-                
-                if reserved:
-                    self.is_running = False
-                    break
-                else:
-                    msg = "조회된 기차가 없습니다." if not trains else "잔여 좌석 없음."
-                    self.add_log(msg)
-                    
-            except Exception as e:
-                self.add_log(f"조회 실패: {e}")
+                            except SRTError as e:
+                                self.add_log(f"예매 중 오류 발생: {e}")
+                                # 동일한 예약 내역 오류 발생 시 매크로 중단
+                                if "동일한 예약 내역" in str(e) or "already reserved" in str(e).lower():
+                                    self.add_log(f"중단 사유: {e}")
+                                    self.is_running = False
+                                    break
 
-            attempt += 1
-            await asyncio.sleep(3) 
+                    if reserved:
+                        self.is_running = False
+                        break
+                    else:
+                        msg = "조회된 기차가 없습니다." if not trains else "잔여 좌석 없음."
+                        self.add_log(msg)
 
-        self.add_log("매크로가 종료되었습니다.")
-        self.is_running = False
-        self.target_train_no = None
-        self.target_train_name = None
-        self.current_config = None
+                except Exception as e:
+                    self.add_log(f"조회 실패: {e}")
+
+                attempt += 1
+                await asyncio.sleep(3)
+        finally:
+            self.add_log("매크로가 종료되었습니다.")
+            self.is_running = False
+            self.target_train_no = None
+            self.target_train_name = None
+            self.current_config = None

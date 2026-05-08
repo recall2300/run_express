@@ -86,7 +86,7 @@ async def start_macro(train_type: str, config: MacroConfig):
     # Save last used config
     try:
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(config.dict(), f, ensure_ascii=False, indent=2)
+            json.dump(config.model_dump(), f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"Failed to save config: {e}")
     
@@ -111,7 +111,7 @@ def get_config():
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             try:
                 return json.load(f)
-            except:
+            except (json.JSONDecodeError, ValueError):
                 return {}
     return {}
 
@@ -120,7 +120,7 @@ def get_all_profiles():
         with open(PROFILES_FILE, "r", encoding="utf-8") as f:
             try:
                 return json.load(f)
-            except:
+            except (json.JSONDecodeError, ValueError):
                 return {}
     return {}
 

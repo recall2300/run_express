@@ -12,8 +12,9 @@ const ProfileSelector = ({
   const [newPhone, setNewPhone] = useState('');
 
   const handleCreate = () => {
-    if (!newName) return;
-    onCreate(newName, newPhone);
+    const trimmedName = newName.trim();
+    if (!trimmedName) return;
+    onCreate(trimmedName, newPhone.trim());
     setNewName('');
     setNewPhone('');
     setIsAdding(false);
@@ -38,18 +39,20 @@ const ProfileSelector = ({
         
         {isAdding ? (
           <div className="profile-item adding">
-            <input 
-              type="text" 
-              placeholder="이름" 
-              value={newName} 
-              onChange={e => setNewName(e.target.value)} 
+            <input
+              type="text"
+              placeholder="이름"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleCreate()}
               autoFocus
             />
-            <input 
-              type="text" 
-              placeholder="전화번호" 
-              value={newPhone} 
+            <input
+              type="text"
+              placeholder="전화번호"
+              value={newPhone}
               onChange={e => setNewPhone(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleCreate()}
             />
             <button className="btn-save" onClick={handleCreate}>생성</button>
             <button className="btn-cancel" onClick={() => setIsAdding(false)}>취소</button>

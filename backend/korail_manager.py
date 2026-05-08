@@ -9,9 +9,6 @@ class KorailManager(BaseTrainManager):
     def __init__(self):
         super().__init__()
 
-    def _format_time(self, t):
-        return f"{t[:2]}:{t[2:4]}" if len(t) >= 4 else t
-
     def _fetch_all_trains(self, korail: Korail, dep: str, arr: str, date: str, start_time: str):
         all_trains = []
         current_time = start_time
@@ -65,8 +62,6 @@ class KorailManager(BaseTrainManager):
             result = []
             for t in trains:
                 str_t = str(t)
-                # 디버그용 로그: 실제 데이터가 어떻게 들어오는지 콘솔에 출력
-                print(f"[DEBUG RAW DATA] {str_t}")
 
                 # 가격 정보 추출 시도 (다양한 속성명 확인)
                 general_price = getattr(t, 'general_seat_price', getattr(t, 'general_price', ''))
@@ -78,7 +73,6 @@ class KorailManager(BaseTrainManager):
 
                 # 문자열 파싱 보완
                 if not general_price or not special_price:
-                    str_t = str(t)
                     # 가격 패턴 정교화: 반드시 '원'으로 끝나는 패턴만 허용 (좌석 수와 혼동 방지)
                     g_match = re.search(r'일반실[:\s]*[^()]*?([\d,]+원)', str_t)
                     s_match = re.search(r'특실[:\s]*[^()]*?([\d,]+원)', str_t)
@@ -158,80 +152,81 @@ class KorailManager(BaseTrainManager):
         search_time = self._get_search_time(config, is_macro=True)
 
         attempt = 1
-        while self.is_running:
-            try:
-                self.add_log(f"{attempt}회차: 기차표 조회 중...")
-                # 지정된 조건으로 기차표 단일 페이지 조회 (기차 시간에 가까운 시점 기준)
-                trains = korail.search_train(config.dep, config.arr, config.date, search_time, include_no_seats=True)
-                
-                reserved = False
-                
-                # 안전한 예매 시도를 위해 korail2 라이브러리 내장 메서드 사용:
-                for train in trains:
-                    # 지정한 기차 번호와 정확히 일치하는 열차만 예매 (100% 매칭)
-                    if train.train_no != config.train_no:
-                        continue
+        try:
+            while self.is_running:
+                try:
+                    self.add_log(f"{attempt}회차: 기차표 조회 중...")
+                    # 지정된 조건으로 기차표 단일 페이지 조회 (기차 시간에 가까운 시점 기준)
+                    trains = korail.search_train(config.dep, config.arr, config.date, search_time, include_no_seats=True)
 
-                    has_general = train.has_general_seat() if hasattr(train, 'has_general_seat') else ('11' in getattr(train, 'general_seat', ''))
-                    has_special = train.has_special_seat() if hasattr(train, 'has_special_seat') else ('11' in getattr(train, 'special_seat', ''))
-                    
-                    if has_general or has_special:
-                        try:
-                            # 가격 정보 추출 (예: 44,500원)
-                            price = ""
-                            price_match = re.search(r'(\d{1,3}(,\d{3})*원)', str(train))
-                            if price_match:
-                                price = price_match.group(1)
+                    reserved = False
 
-                            # 빈자리 발견 로그 개선
-                            seat_desc = "특실" if config.seat_type == 'special' else "일반실"
-                            train_name = getattr(train, 'train_type_name', str(train).split(']')[0][1:])
-                            self.add_log(f"빈자리 발견! 예매 시도 중: [{train_name}] {config.date[4:6]}월 {config.date[6:8]}일, {config.dep}~{config.arr}({self._format_time(train.dep_time)}~{self._format_time(train.arr_time)}) {seat_desc}")
-                            
-                            # 좌석 등급 지정
-                            option = ReserveOption.SPECIAL_ONLY if config.seat_type == 'special' else ReserveOption.GENERAL_ONLY
-                            
-                            reservation = korail.reserve(train, option=option)
-                            self.add_log(f"예매가 성공적으로 완료되었습니다: {reservation}")
-                            
-                            # 예매 성공 문자열(str)에서 직접 금액 파싱 (가장 정확함)
-                            str_res = str(reservation)
-                            p_match = re.search(r'([\d,]+원)', str_res)
-                            if p_match:
-                                actual_price = p_match.group(1)
-                            else:
-                                # 실패 시 속성값 확인
-                                actual_price = getattr(reservation, 'total_price', getattr(reservation, 'amount', config.price))
-                                if isinstance(actual_price, (int, float)):
-                                    actual_price = f"{int(actual_price):,}원"
-                            
-                            msg = self.format_notification(config, "🎉 예매 성공!", seat_type=config.seat_type, price=actual_price)
-                            self.send_notification(config, msg)
-                            reserved = True
-                            break
-                        except KorailError as e:
-                            self.add_log(f"예매 중 오류 발생: {e}")
-                            # 동일한 예약 내역 오류 발생 시 매크로 중단
-                            if "동일한 예약 내역" in str(e) or "WRR800029" in str(e):
-                                self.add_log(f"중단 사유: {e}")
-                                self.is_running = False
+                    # 안전한 예매 시도를 위해 korail2 라이브러리 내장 메서드 사용:
+                    for train in trains:
+                        # 지정한 기차 번호와 정확히 일치하는 열차만 예매 (100% 매칭)
+                        if train.train_no != config.train_no:
+                            continue
+
+                        has_general = train.has_general_seat() if hasattr(train, 'has_general_seat') else ('11' in getattr(train, 'general_seat', ''))
+                        has_special = train.has_special_seat() if hasattr(train, 'has_special_seat') else ('11' in getattr(train, 'special_seat', ''))
+
+                        if has_general or has_special:
+                            try:
+                                # 가격 정보 추출 (예: 44,500원)
+                                price = ""
+                                price_match = re.search(r'(\d{1,3}(,\d{3})*원)', str(train))
+                                if price_match:
+                                    price = price_match.group(1)
+
+                                # 빈자리 발견 로그 개선
+                                seat_desc = "특실" if config.seat_type == 'special' else "일반실"
+                                train_name = getattr(train, 'train_type_name', str(train).split(']')[0][1:])
+                                self.add_log(f"빈자리 발견! 예매 시도 중: [{train_name}] {config.date[4:6]}월 {config.date[6:8]}일, {config.dep}~{config.arr}({self._format_time(train.dep_time)}~{self._format_time(train.arr_time)}) {seat_desc}")
+
+                                # 좌석 등급 지정
+                                option = ReserveOption.SPECIAL_ONLY if config.seat_type == 'special' else ReserveOption.GENERAL_ONLY
+
+                                reservation = korail.reserve(train, option=option)
+                                self.add_log(f"예매가 성공적으로 완료되었습니다: {reservation}")
+
+                                # 예매 성공 문자열(str)에서 직접 금액 파싱 (가장 정확함)
+                                str_res = str(reservation)
+                                p_match = re.search(r'([\d,]+원)', str_res)
+                                if p_match:
+                                    actual_price = p_match.group(1)
+                                else:
+                                    # 실패 시 속성값 확인
+                                    actual_price = getattr(reservation, 'total_price', getattr(reservation, 'amount', config.price))
+                                    if isinstance(actual_price, (int, float)):
+                                        actual_price = f"{int(actual_price):,}원"
+
+                                msg = self.format_notification(config, "🎉 예매 성공!", seat_type=config.seat_type, price=actual_price)
+                                self.send_notification(config, msg)
+                                reserved = True
                                 break
-                
-                if reserved:
-                    self.is_running = False
-                    break
-                else:
-                    msg = "조회된 기차가 없습니다." if not trains else "잔여 좌석 없음."
-                    self.add_log(msg)
-                    
-            except Exception as e:
-                self.add_log(f"조회 실패: {e}")
+                            except KorailError as e:
+                                self.add_log(f"예매 중 오류 발생: {e}")
+                                # 동일한 예약 내역 오류 발생 시 매크로 중단
+                                if "동일한 예약 내역" in str(e) or "WRR800029" in str(e):
+                                    self.add_log(f"중단 사유: {e}")
+                                    self.is_running = False
+                                    break
 
-            attempt += 1
-            await asyncio.sleep(3) # 3초 주기로 조회 대기
+                    if reserved:
+                        self.is_running = False
+                        break
+                    else:
+                        msg = "조회된 기차가 없습니다." if not trains else "잔여 좌석 없음."
+                        self.add_log(msg)
 
-        self.add_log("매크로가 종료되었습니다.")
-        self.is_running = False
-        self.target_train_no = None
-        self.target_train_name = None
-        self.current_config = None
+                except Exception as e:
+                    self.add_log(f"조회 실패: {e}")
+
+                attempt += 1
+                await asyncio.sleep(3) # 3초 주기로 조회 대기
+        finally:
+            self.add_log("매크로가 종료되었습니다.")
+            self.is_running = False
+            self.target_train_no = None
+            self.target_train_name = None
+            self.current_config = None
