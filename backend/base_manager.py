@@ -11,6 +11,7 @@ class BaseTrainManager:
         self.logs: List[str] = []
         self.MAX_LOGS = 50
         self.target_train_no = None
+        self.target_train_name = None
         self.current_config = None
         
         # Solapi settings
@@ -28,6 +29,18 @@ class BaseTrainManager:
         self.tg_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
         self.tg_chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
         self.notification_mode = os.getenv("NOTIFICATION_MODE", "telegram").lower() # 'sms' or 'telegram'
+
+    def check_notification_ready(self) -> bool:
+        """알림 설정이 완료되어 있는지 확인. 미설정 시 로그 후 False 반환."""
+        if self.notification_mode == 'telegram':
+            if not self.tg_token or not self.tg_chat_id:
+                self.add_log("알림 설정 오류: TELEGRAM_BOT_TOKEN 또는 TELEGRAM_CHAT_ID가 설정되지 않았습니다. 매크로를 시작할 수 없습니다.")
+                return False
+        elif self.notification_mode == 'sms':
+            if not self.message_service or not self.from_number:
+                self.add_log("알림 설정 오류: Solapi API 설정이 완료되지 않았습니다. 매크로를 시작할 수 없습니다.")
+                return False
+        return True
 
     def add_log(self, msg: str):
         print(msg)
@@ -48,6 +61,7 @@ class BaseTrainManager:
             self.send_notification(self.current_config, msg)
         self.current_config = None
         self.target_train_no = None
+        self.target_train_name = None
 
     def format_notification(self, config, event_type, seat_type=None, price=None):
         dep_time = ""

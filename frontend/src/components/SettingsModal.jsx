@@ -43,21 +43,6 @@ const SettingsModal = ({
           </div>
         </div>
 
-        <div className="settings-section">
-          <h3>알림 설정</h3>
-          <div className="input-group">
-            <label>SMS 수신 번호</label>
-            <input 
-              type="text" 
-              name="phone_number" 
-              value={config.phone_number} 
-              onChange={onChange}
-              placeholder="01012345678"
-            />
-            <p className="hint">Solapi API 연동 시 알림이 발송됩니다.</p>
-          </div>
-        </div>
-
         <div className="modal-actions">
           <button className="btn-primary" onClick={onSave}>설정 저장</button>
           <button className="btn-secondary" onClick={onClose}>닫기</button>

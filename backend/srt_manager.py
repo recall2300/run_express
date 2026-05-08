@@ -96,20 +96,29 @@ class SrtManager(BaseTrainManager):
         self.target_train_no = config.train_no
         self.current_config = config
         self.logs = []
+
+        if not self.check_notification_ready():
+            self.is_running = False
+            self.target_train_no = None
+            self.target_train_name = None
+            self.current_config = None
+            return
+
         dep_time_formatted = f"{config.time[:2]}:{config.time[2:4]}" if len(config.time) >= 4 else config.time
-        
+
         # 좌석 및 가격 정보 포함
         seat_name = "특실" if config.seat_type == 'special' else "일반실"
         price_info = ""
         if hasattr(config, 'price') and config.price:
             price_info = f", {config.price}"
 
+        self.target_train_name = getattr(config, 'train_name', '')
         self.add_log(f"매크로 시작: {config.dep} -> {config.arr} ({config.date}) [열차번호: {config.train_no}호, {dep_time_formatted} 출발, {seat_name}{price_info}]")
-        
+
         # 구동 시작 알림 전송
         start_msg = self.format_notification(config, "🚀 구동 시작")
         self.send_notification(config, start_msg)
-        
+
         try:
             srt = SRT(config.srt_id, config.srt_pw)
             self.add_log("로그인 성공!")
@@ -200,4 +209,5 @@ class SrtManager(BaseTrainManager):
         self.add_log("매크로가 종료되었습니다.")
         self.is_running = False
         self.target_train_no = None
+        self.target_train_name = None
         self.current_config = None

@@ -39,15 +39,15 @@ const TrainList = ({ trains, onStart, isRunning }) => {
               <div className="action-row">
                 <button 
                   className={`btn-action ${t.has_special ? 'available' : 'soldout'}`} 
-                  onClick={() => onStart(t.train_no, t.dep_time, calculateDuration(t.dep_time, t.arr_time), 'special', t.special_price)}
+                  onClick={() => onStart(t.train_no, t.dep_time, calculateDuration(t.dep_time, t.arr_time), 'special', t.special_price, t.train_name)}
                   disabled={isRunning}
                 >
                   <span className="seat-type">특실</span>
                   <span className="status-text">{t.has_special ? '예매하기' : '매진'}</span>
                 </button>
-                <button 
-                  className={`btn-action ${t.has_general ? 'available' : 'soldout'}`} 
-                  onClick={() => onStart(t.train_no, t.dep_time, calculateDuration(t.dep_time, t.arr_time), 'general', t.general_price)}
+                <button
+                  className={`btn-action ${t.has_general ? 'available' : 'soldout'}`}
+                  onClick={() => onStart(t.train_no, t.dep_time, calculateDuration(t.dep_time, t.arr_time), 'general', t.general_price, t.train_name)}
                   disabled={isRunning}
                 >
                   <span className="seat-type">일반실</span>

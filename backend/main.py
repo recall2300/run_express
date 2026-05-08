@@ -40,6 +40,7 @@ class MacroConfig(BaseModel):
     date: str
     time: str = ""
     train_no: str = ""
+    train_name: str = ""
     phone_number: str = ""
     profile_name: str = ""
     train_type: str = ""
@@ -62,12 +63,14 @@ async def get_status():
         "KTX": {
             "is_running": managers["KTX"].is_running,
             "logs": managers["KTX"].logs,
-            "target_train_no": managers["KTX"].target_train_no
+            "target_train_no": managers["KTX"].target_train_no,
+            "target_train_name": managers["KTX"].target_train_name
         },
         "SRT": {
             "is_running": managers["SRT"].is_running,
             "logs": managers["SRT"].logs,
-            "target_train_no": managers["SRT"].target_train_no
+            "target_train_no": managers["SRT"].target_train_no,
+            "target_train_name": managers["SRT"].target_train_name
         }
     }
 

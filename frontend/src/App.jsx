@@ -51,9 +51,9 @@ function App() {
   });
   const [trainLists, setTrainLists] = useState({ KTX: [], SRT: [] });
   const [profiles, setProfiles] = useState({ KTX: {}, SRT: {} });
-  const [isRunningAll, setIsRunningAll] = useState({ 
-    KTX: { is_running: false, target_train_no: null }, 
-    SRT: { is_running: false, target_train_no: null } 
+  const [isRunningAll, setIsRunningAll] = useState({
+    KTX: { is_running: false, target_train_no: null, target_train_name: null },
+    SRT: { is_running: false, target_train_no: null, target_train_name: null }
   });
   const [logsAll, setLogsAll] = useState({ KTX: [], SRT: [] });
   const [isSearching, setIsSearching] = useState(false);
@@ -79,9 +79,9 @@ function App() {
   const checkStatus = async () => {
     try {
       const data = await api.getStatus();
-      setIsRunningAll({ 
-        KTX: { is_running: data.KTX.is_running, target_train_no: data.KTX.target_train_no }, 
-        SRT: { is_running: data.SRT.is_running, target_train_no: data.SRT.target_train_no } 
+      setIsRunningAll({
+        KTX: { is_running: data.KTX.is_running, target_train_no: data.KTX.target_train_no, target_train_name: data.KTX.target_train_name },
+        SRT: { is_running: data.SRT.is_running, target_train_no: data.SRT.target_train_no, target_train_name: data.SRT.target_train_name }
       });
       setLogsAll({ KTX: data.KTX.logs, SRT: data.SRT.logs });
     } catch (err) { console.error('Status check failed', err); }
@@ -179,13 +179,14 @@ function App() {
     setIsSearching(false);
   };
 
-  const handleStartMacro = async (trainNo, depTime, duration, seatType = 'general', price = '') => {
-    const updated = { 
-      ...config, 
-      train_no: trainNo, 
-      time: depTime, 
-      profile_name: activeProfile, 
-      train_type: activeTab, 
+  const handleStartMacro = async (trainNo, depTime, duration, seatType = 'general', price = '', trainName = '') => {
+    const updated = {
+      ...config,
+      train_no: trainNo,
+      train_name: trainName,
+      time: depTime,
+      profile_name: activeProfile,
+      train_type: activeTab,
       duration,
       seat_type: seatType,
       price: price
@@ -194,7 +195,7 @@ function App() {
     try {
       const res = await api.startMacro(activeTab, updated);
       if (res.status === 'success') {
-        setIsRunningAll(prev => ({ ...prev, [activeTab]: { is_running: true, target_train_no: trainNo } }));
+        setIsRunningAll(prev => ({ ...prev, [activeTab]: { is_running: true, target_train_no: trainNo, target_train_name: trainName } }));
       } else alert(res.message);
     } catch (err) { alert("서버 연결 실패"); }
   };
@@ -226,6 +227,8 @@ function App() {
         onOpenSettings={() => setShowSettings(true)}
         isDark={isDark}
         onToggleTheme={() => setIsDark(prev => !prev)}
+        activeProfile={activeProfile}
+        onLogoClick={() => setActiveProfiles(prev => ({ ...prev, [activeTab]: '' }))}
       />
       
       <main className="main-content">
@@ -260,7 +263,11 @@ function App() {
             <MacroStatus 
               isRunning={currentRunning.is_running}
               logs={currentLogs}
-              targetTrain={currentRunning.target_train_no || config.train_no}
+              targetTrain={
+                currentRunning.target_train_name
+                  ? `${currentRunning.target_train_name} ${currentRunning.target_train_no}`
+                  : (currentRunning.target_train_no || config.train_no)
+              }
               onStop={handleStopMacro}
             />
 

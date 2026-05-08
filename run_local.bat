@@ -7,15 +7,11 @@ echo ------------------------------------------
 if not exist .env echo [WARNING] .env file not found!
 if exist .env echo [1/4] .env file found.
 
-if not exist frontend\dist (
-    echo [2/4] Building frontend...
-    cd frontend
-    call npm install
-    call npm run build
-    cd ..
-) else (
-    echo [2/4] Frontend dist found.
-)
+echo [2/4] Building frontend...
+cd frontend
+call npm install
+call npm run build
+cd ..
 
 if not exist backend\venv (
     echo [3/4] Creating venv...

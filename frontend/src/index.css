@@ -52,6 +52,17 @@ html.light-theme .logs-container {
   border-left-color: var(--border);
 }
 
+html.light-theme select,
+html.light-theme input {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+html.light-theme select:focus,
+html.light-theme input:focus {
+  background: rgba(61, 138, 0, 0.06);
+}
+
 /* ──────────────────────────────────────────────────────── */
 
 * {
@@ -189,9 +200,23 @@ body {
   transition: border-color 0.15s, color 0.15s;
 }
 
-.settings-toggle:hover {
+.settings-toggle:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.settings-toggle:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.logo-clickable {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.logo-clickable:hover {
+  opacity: 0.7;
 }
 
 .subtitle { display: none; }
@@ -789,7 +814,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100%;
   max-width: 400px;
   padding: 1.5rem;
-  background: #060606;
+  background: var(--bg-surface);
   border: 1px solid var(--accent);
 }
 

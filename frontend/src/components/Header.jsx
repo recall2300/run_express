@@ -1,11 +1,17 @@
 import React from 'react';
 
-const Header = ({ isRunning, onOpenSettings, isDark, onToggleTheme }) => {
+const Header = ({ isRunning, onOpenSettings, isDark, onToggleTheme, activeProfile, onLogoClick }) => {
   return (
     <header className="header">
       <div className="header-content">
         <div className="brand">
-          <h1 className="logo-text">런특급</h1>
+          <h1
+            className={`logo-text${activeProfile ? ' logo-clickable' : ''}`}
+            onClick={activeProfile ? onLogoClick : undefined}
+            title={activeProfile ? '프로필 선택으로 돌아가기' : undefined}
+          >
+            런특급
+          </h1>
         </div>
         <div className="header-divider" />
         <span className="header-title">RUN EXPRESS</span>
@@ -22,7 +28,12 @@ const Header = ({ isRunning, onOpenSettings, isDark, onToggleTheme }) => {
           >
             {isDark ? '☀' : '☾'}
           </button>
-          <button className="settings-toggle" onClick={onOpenSettings} title="설정">
+          <button
+            className="settings-toggle"
+            onClick={onOpenSettings}
+            title="설정"
+            disabled={!activeProfile}
+          >
             ⚙
           </button>
         </div>
