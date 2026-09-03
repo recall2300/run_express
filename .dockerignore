@@ -29,3 +29,6 @@ docker-compose.yml
 Dockerfile
 run.bat
 run_local.bat
+run_wsl.sh
+scripts/
+docs/

@@ -1,0 +1,23 @@
+# run-express systemd unit 템플릿
+# 이 파일을 직접 편집하지 말고 scripts/wsl_service_install.sh 로 설치하세요.
+# (__USER__ / __PROJECT_DIR__ / __PORT__ 는 설치 시 실제 값으로 치환됩니다)
+[Unit]
+Description=Run Express (runKTX) - KTX/SRT 예매 매크로
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__PROJECT_DIR__
+Environment=PYTHONUNBUFFERED=1
+Environment=TZ=Asia/Seoul
+ExecStart=__PROJECT_DIR__/backend/venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port __PORT__
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=run-express
+
+[Install]
+WantedBy=multi-user.target
