@@ -4,7 +4,15 @@ This document provides a technical overview of the **runKTX** project architectu
 
 ## 🏗 System Architecture
 
-The project is divided into a FastAPI backend and a React frontend, optimized for deployment in Docker containers (e.g., Synology NAS).
+The project is divided into a FastAPI backend and a React frontend.
+
+**Runtime environment**: production runs on **WSL2 (Ubuntu) natively**, supervised by systemd
+(`run-express.service`, port 8888, `WorkingDirectory` = project root). Setup and migration are
+scripted under `scripts/` and documented in `docs/WSL_MIGRATION.md`. The Docker image and
+`docker-compose.yml` remain available for container deployments (e.g., Synology NAS).
+
+> `main.py` resolves `config.json` / `profiles.json` relative to the **current working directory**,
+> so any launcher must set the project root as CWD.
 
 ### Backend (Python/FastAPI)
 - **`main.py`**: Entry point. Orchestrates manager instances and provides REST APIs.

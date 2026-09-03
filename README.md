@@ -16,24 +16,50 @@ KTX와 SRT의 빈자리를 자동으로 감지하고 예매해 주는 스마트 
 
 ## 설치 및 실행 방법
 
-### 1. Docker를 이용한 실행 (추천)
-Docker가 설치된 환경 어디서든 명령 한 줄로 시작할 수 있습니다.
+### 1. WSL 운영 (권장 · 현재 운영환경)
+WSL2 + Ubuntu 위에서 systemd 서비스로 상시 운영합니다.
+
+```bash
+# WSL(Ubuntu) 안에서
+bash scripts/wsl_migrate.sh          # Windows 경로 → ~/project/run-express 이전 (최초 1회)
+cd ~/project/run-express
+bash scripts/wsl_bootstrap.sh        # 패키지·Node 22·venv·프론트엔드 빌드
+bash scripts/wsl_service_install.sh  # systemd 서비스 등록 및 시작
+```
+
+```powershell
+# Windows PowerShell — 로그온 시 WSL 자동 기동
+powershell -ExecutionPolicy Bypass -File scripts\wsl_autostart.ps1
+```
+
+접속: `http://localhost:8888`
+포그라운드로 바로 실행하려면 `./run_wsl.sh` 를 사용합니다.
+
+> 배포판 설치부터 검증·롤백까지 전체 절차는 **[docs/WSL_MIGRATION.md](docs/WSL_MIGRATION.md)** 를 참고하세요.
+
+### 2. Docker를 이용한 실행
+Docker가 설치된 환경 어디서든 명령 한 줄로 시작할 수 있습니다. (Synology NAS 등)
 
 1. `.env.example` 파일을 복사하여 `.env` 파일을 만들고 설정값을 입력합니다.
 2. 다음 명령어를 실행합니다.
+```bash
+./run.sh          # Linux / WSL / macOS
+```
 ```powershell
-.\run.bat
+.\run.bat         # Windows
 ```
 3. 웹 브라우저에서 `http://localhost:8888`에 접속합니다.
 
-### 2. 로컬 개발 환경 실행
+### 3. Windows 로컬 실행 (레거시)
+WSL 전환 이전 방식으로, 호환을 위해 남겨 두었습니다.
+
 1. `run_local.bat`을 실행합니다. (자동으로 가상환경 구축 및 프론트엔드 빌드를 수행합니다.)
 2. 웹 브라우저에서 `http://localhost:8888`에 접속합니다.
 
 ## 기술 스택
 - **Backend**: FastAPI, korail2, SRT-py
 - **Frontend**: React, Vite, Vanilla CSS
-- **Deployment**: Docker, Docker Compose
+- **Deployment**: WSL2 + systemd (운영), Docker & Docker Compose (배포용)
 
 ## 라이선스
 이 프로젝트는 개인 학습 및 편의를 위해 제작되었습니다. 상업적 이용 및 무단 배포로 발생하는 문제에 대한 책임은 사용자에게 있습니다.
